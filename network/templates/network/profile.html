@@ -1,12 +1,16 @@
 {% extends "network/layout.html" %}
-
-    {% block body %}
-    <form action="{% url 'create' %}" method="post">
-        {% csrf_token %}
-        <input type="text" name="title" placeholder="Title of Post?">
-        <input type="text" name="body" placeholder="Post">
-        <input type="submit" placeholder="Post!">
-    </form>
+{% block body %}
+    {{ userProfile }} has {{ userProfile.amountOfFollowers }} followers, and follows {{ userProfile.amountOfFollowees }} users.
+    <br>
+    {% if user.is_authenticated %}
+        {% if user != user.Profile %}
+            {% if userIsFollower %}
+                <h3>Unfollow?</h3>
+            {% else %}
+                <h3>Follow?</h3>
+            {% endif %}           
+        {% endif %}
+    {% endif %}
     {% for post in posts %}
         <h1>{{ post.title }}</h1>
         <h2><a href="{% url 'profile' post.user%}">{{ post.user}}</a> posted {{ post.body }} at {{ post.timestamp }} with 

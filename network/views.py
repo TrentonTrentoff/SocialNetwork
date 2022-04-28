@@ -1,14 +1,20 @@
+from sqlite3 import Timestamp
+from turtle import title
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User
+from .models import User, Post, Like, Follow
 
 
 def index(request):
-    return render(request, "network/index.html")
+    posts = Post.objects.all().order_by('-timestamp')
+    likes = Like.objects.all()
+    return render(request, "network/index.html", {
+        "posts": posts,
+    })
 
 
 def login_view(request):
@@ -61,3 +67,30 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/register.html")
+
+def create(request):
+    if request.method == "POST":
+        user = request.user
+        title = request.POST["title"]
+        body = request.POST["body"]
+        newPost = Post(title=title, body=body, user=user)
+        newPost.save()
+        return HttpResponseRedirect(reverse("index"))
+
+def profile(request, user):
+    userProfile = User.objects.get(username=user)
+    currentUser = User.objects.get(username=request.user)
+    posts = Post.objects.filter(user=userProfile).order_by('-timestamp')
+    followers = Follow.objects.filter(followee = userProfile).values("follower_id")
+    print (followers)
+    userIsFollower = False
+    if currentUser in followers:
+        userIsFollower = True
+    print (userIsFollower)
+    return render (request, "network/profile.html", {
+        "userProfile": userProfile,
+        "posts": posts,
+        "followers": followers,
+        "currentUser": currentUser,
+        "userIsFollower": userIsFollower
+    })
