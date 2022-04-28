@@ -11,7 +11,6 @@ from .models import User, Post, Like, Follow
 
 def index(request):
     posts = Post.objects.all().order_by('-timestamp')
-    likes = Like.objects.all()
     return render(request, "network/index.html", {
         "posts": posts,
     })
@@ -79,18 +78,34 @@ def create(request):
 
 def profile(request, user):
     userProfile = User.objects.get(username=user)
-    currentUser = User.objects.get(username=request.user)
+    print(request.user)
+    userIsFollower = False 
+    if request.user.is_authenticated:
+        currentUser = User.objects.get(username=request.user)
+        # Checks if object has been created (i.e. if the current user follows the profiled user)
+        if Follow.objects.filter(followee=userProfile, follower=currentUser.id).exists():
+            userIsFollower = True
+    else:
+        currentUser = request.user
     posts = Post.objects.filter(user=userProfile).order_by('-timestamp')
-    followers = Follow.objects.filter(followee = userProfile).values("follower_id")
-    print (followers)
-    userIsFollower = False
-    if currentUser in followers:
-        userIsFollower = True
-    print (userIsFollower)
+    followers = Follow.objects.filter(followee=userProfile).values("follower_id")
     return render (request, "network/profile.html", {
         "userProfile": userProfile,
         "posts": posts,
         "followers": followers,
         "currentUser": currentUser,
         "userIsFollower": userIsFollower
+    })
+
+def following(request):
+    currentUser = User.objects.get(username=request.user)
+    print (currentUser)
+    followingUsers = Follow.objects.filter(followee = currentUser)
+    print (followingUsers)
+    followingUsersID = [follow.id for follow in followingUsers]
+    print (followingUsersID)
+    actualUsers = User.objects.filter(id__in=followingUsersID)
+    posts = Post.objects.filter(user__in=followingUsersID)
+    return render(request, "network/following.html", {
+        "posts": posts
     })

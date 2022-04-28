@@ -1,0 +1,13 @@
+{% extends "network/layout.html" %}
+    {% block body %}
+    {% for post in posts %}
+        <h1>{{ post.title }}</h1>
+        <h2><a href="{% url 'profile' post.user%}">{{ post.user}}</a> posted {{ post.body }} at {{ post.timestamp }} with 
+            {% if post.amountOfLikes == 1 %}
+                1 like. 
+            {% else %} 
+                {{ post.amountOfLikes }} likes.
+            {% endif %}
+            </h2>
+    {% endfor %}
+{% endblock %}
