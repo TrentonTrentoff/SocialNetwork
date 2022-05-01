@@ -5,12 +5,16 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.core.paginator import Paginator
 
 from .models import User, Post, Like, Follow
 
 
 def index(request):
     posts = Post.objects.all().order_by('-timestamp')
+    paginator = Paginator(posts, 10)
+    page = request.GET.get('page', 1)
+    posts = paginator.page(page)
     return render(request, "network/index.html", {
         "posts": posts,
     })
@@ -99,13 +103,14 @@ def profile(request, user):
 
 def following(request):
     currentUser = User.objects.get(username=request.user)
-    print (currentUser)
     followingUsers = Follow.objects.filter(followee = currentUser)
-    print (followingUsers)
     followingUsersID = [follow.id for follow in followingUsers]
-    print (followingUsersID)
-    actualUsers = User.objects.filter(id__in=followingUsersID)
     posts = Post.objects.filter(user__in=followingUsersID)
     return render(request, "network/following.html", {
         "posts": posts
     })
+
+def follow(request):
+    if request.method == "POST":
+        pass
+        # Create follower, save as object, render profile page again, should say Unfollow instead of Follow
