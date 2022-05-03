@@ -110,7 +110,23 @@ def following(request):
         "posts": posts
     })
 
-def follow(request):
-    if request.method == "POST":
-        pass
-        # Create follower, save as object, render profile page again, should say Unfollow instead of Follow
+def follow(request, followee):
+    follower = request.user
+    followee = User.objects.get(username=followee)
+    if Follow.objects.filter(followee=followee, follower=follower).exists():
+        # Find follow object, delete, reload profile
+        print("DELETING A FOLLOW")
+        existingFollow = Follow.objects.get(followee=followee, follower=follower)
+        existingFollow.delete()
+        url = reverse("profile", kwargs={'user': followee})
+        return HttpResponseRedirect(url)
+    else:
+        print("CREATING A NEW FOLLOW")
+        newFollow = Follow(followee=followee, follower=follower)
+        newFollow.save()
+        url = reverse("profile", kwargs={'user': followee})
+        return HttpResponseRedirect(url)
+    # Create follower, save as object, render profile page again, should say Unfollow instead of Follow
+
+def edit(request, post):
+    pass

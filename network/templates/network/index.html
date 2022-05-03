@@ -9,13 +9,15 @@
     </form>
     {% for post in posts %}
         <h1>{{ post.title }}</h1>
-        <h2><a href="{% url 'profile' post.user%}">{{ post.user}}</a> posted {{ post.body }} at {{ post.timestamp }} with 
+        <a href="{% url 'profile' post.user%}">{{ post.user}}</a> posted {{ post.body }} at {{ post.timestamp }} with 
             {% if post.amountOfLikes == 1 %}
                 1 like. 
             {% else %} 
                 {{ post.amountOfLikes }} likes.
             {% endif %}
-            </h2>
+        {% if user == post.user %}
+        <a href="{% url 'edit' post%}"><h2>Edit Post?</h2></a>
+        {% endif %}
     {% endfor %}
     {% if posts.has_other_pages %}
         <nav aria-label="Page navigation">

@@ -5,9 +5,9 @@
     {% if user.is_authenticated %}
         {% if user != user.Profile %}
             {% if userIsFollower %}
-                <h3>Unfollow?</h3>
+                <a href="{% url 'follow' userProfile %}"><h3>Unfollow?</h3></a>
             {% else %}
-                <h3>Follow?</h3>
+                <a href="{% url 'follow' userProfile %}"><h3>Follow?</h3></a>
             {% endif %}           
         {% endif %}
     {% endif %}
