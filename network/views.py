@@ -103,8 +103,12 @@ def profile(request, user):
 
 def following(request):
     currentUser = User.objects.get(username=request.user)
-    followingUsers = Follow.objects.filter(followee = currentUser)
-    followingUsersID = [follow.id for follow in followingUsers]
+    followingUsers = Follow.objects.filter(follower=currentUser).values('followee')
+    print (followingUsers)
+    followingUsersID = []
+    for user in followingUsers:
+        for key in user:
+            followingUsersID.append(user[key])
     posts = Post.objects.filter(user__in=followingUsersID)
     return render(request, "network/following.html", {
         "posts": posts
