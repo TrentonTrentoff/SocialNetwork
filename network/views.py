@@ -1,11 +1,11 @@
-from sqlite3 import Timestamp
-from turtle import title
+import json
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.core.paginator import Paginator
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, Post, Like, Follow
 
@@ -132,5 +132,11 @@ def follow(request, followee):
         return HttpResponseRedirect(url)
     # Create follower, save as object, render profile page again, should say Unfollow instead of Follow
 
-def edit(request, post):
-    pass
+@csrf_exempt
+def edit(request):
+    id = json.loads(request.id)
+    print (id)
+    newPost = json.loads(request.body)
+    editedPost = Post.objects.get(id=id)
+    editedPost.update(body=newPost)
+    return JsonResponse({"message": "Email sent successfully."}, status=201)
